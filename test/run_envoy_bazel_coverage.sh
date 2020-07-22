@@ -84,3 +84,5 @@ if [[ "$VALIDATE_COVERAGE" == "true" ]] && [[ "{FUZZ_COVERAGE}" == "false" ]]; t
 fi
 
 echo "HTML coverage report is in ${COVERAGE_DIR}/index.html"
+
+

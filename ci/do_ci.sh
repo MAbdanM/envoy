@@ -265,12 +265,7 @@ elif [[ "$CI_TARGET" == "bazel.api" ]]; then
 elif [[ "$CI_TARGET" == "bazel.coverage" ]]; then
   setup_clang_toolchain
   echo "bazel coverage build with tests ${COVERAGE_TEST_TARGETS}"
-
-  # Reduce the amount of memory Bazel tries to use to prevent it from launching too many subprocesses.
-  # This should prevent the system from running out of memory and killing tasks. See discussion on
-  # https://github.com/envoyproxy/envoy/pull/5611.
-  [ -z "$CIRCLECI" ] || export BAZEL_BUILD_OPTIONS="${BAZEL_BUILD_OPTIONS} --local_ram_resources=12288"
-
+  
   test/run_envoy_bazel_coverage.sh ${COVERAGE_TEST_TARGETS}
   collect_build_profile coverage
   exit 0

@@ -135,6 +135,9 @@ build:coverage --experimental_use_llvm_covmap
 build:coverage --collect_code_coverage
 build:coverage --test_tag_filters=-nocoverage
 build:coverage --instrumentation_filter="//source(?!/extensions/quic_listeners/quiche/platform)[/:],//include[/:]"
+build:coverage --define tcmalloc=disabled
+build:coverage --per_file_copt=^external/,^bazel-out/,^test/mocks/@-fno-profile-instr-generate
+build:coverage --per_file_copt=^external/,^bazel-out/,^test/mocks/@-fno-coverage-mapping
 coverage:test-coverage --test_arg="-l trace"
 coverage:fuzz-coverage --config=plain-fuzzer
 coverage:fuzz-coverage --run_under=@envoy//bazel/coverage:fuzz_coverage_wrapper.sh
@@ -242,6 +245,9 @@ build:docker-tsan --config=rbe-toolchain-tsan
 # CI configurations
 build:remote-ci --remote_cache=grpcs://remotebuildexecution.googleapis.com
 build:remote-ci --remote_executor=grpcs://remotebuildexecution.googleapis.com
+
+# Cache
+build:local-cache --strategy_regexp=Cc.*MakeRule=local
 
 # Fuzz builds
 # -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION is passed in in the bazel build target
