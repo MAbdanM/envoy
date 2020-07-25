@@ -141,7 +141,10 @@ public:
 
   // spdlog::sinks::sink
   void log(const spdlog::details::log_msg& msg) override;
-  void flush() override { sink_->flush(); }
+  void flush() override {
+    absl::ReaderMutexLock lock(&sink_mutex_);
+    sink_->flush();
+  }
   void set_pattern(const std::string& pattern) override {
     set_formatter(spdlog::details::make_unique<spdlog::pattern_formatter>(pattern));
   }
@@ -180,13 +183,20 @@ private:
 
   DelegatingLogSink() = default;
 
-  void setDelegate(SinkDelegate* sink) { sink_ = sink; }
-  SinkDelegate* delegate() { return sink_; }
+  void setDelegate(SinkDelegate* sink) {
+    absl::WriterMutexLock lock(&sink_mutex_);
+    sink_ = sink;
+  }
+  SinkDelegate* delegate() {
+    absl::ReaderMutexLock lock(&sink_mutex_);
+    return sink_;
+  }
 
-  SinkDelegate* sink_{nullptr};
+  SinkDelegate* sink_ ABSL_GUARDED_BY(sink_mutex_){nullptr};
+  absl::Mutex sink_mutex_;
   std::unique_ptr<StderrSinkDelegate> stderr_sink_; // Builtin sink to use as a last resort.
   std::unique_ptr<spdlog::formatter> formatter_ ABSL_GUARDED_BY(format_mutex_);
-  absl::Mutex format_mutex_; // direct absl reference to break build cycle.
+  absl::Mutex format_mutex_;
   bool should_escape_{false};
 };
 
